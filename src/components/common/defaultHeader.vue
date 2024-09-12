@@ -14,7 +14,7 @@ const loginState = useUserstore();
 onMounted(() => {
   if (localStorage.getItem("accessToken")) {
     loginState.setLoginState(true);
-    loginState.fetchUserProfile(); // 로그인 상태이면 기본 사용자 정보만 로드
+    loginState.fetchUserProfile(); // 로그인 상태이면 사용자 정보 로드
   }
 });
 
@@ -23,7 +23,7 @@ watch(
   () => loginState.isLoggedIn,
   (newValue) => {
     if (newValue) {
-      loginState.fetchUserProfile(); // 로그인 상태가 true로 변경되면 기본 사용자 정보 로드
+      loginState.fetchUserProfile(); // 로그인 상태가 true로 변경되면 사용자 정보 로드
     } else {
       loginState.clearUserProfile(); // 로그아웃 시 사용자 정보 초기화
     }
@@ -31,23 +31,17 @@ watch(
 );
 
 // 원예일지로 이동하는 함수
-const goToGardenDiary = async () => {
-  if (!loginState.isLoggedIn) {
+const goToGardenDiary = () => {
+  if (!isLoggedIn.value) {
     router.push("/login");
+  } else if (!userProfileExists.value) {
+    // 프로필이 없는 경우
+    router.push("/profile/registration"); // 프로필 등록 페이지로 이동
   } else {
-    // 프로필 정보 불러오기 시도
-    await loginState.fetchUserProfileDetails();
-
-    if (!loginState.profileExists) {
-      // 프로필이 없는 경우
-      router.push("/profile/registration"); // 프로필 등록 페이지로 이동
-    } else {
-      router.push(`/garden-diary/${loginState.userNickname}`); // 프로필이 있는 경우 원예일지 페이지로 이동
-    }
+    router.push("/garden-diary/${loginState.userNickname}"); // 프로필이 있는 경우 원예일지 페이지로 이동
   }
 };
 </script>
-
 
 <template>
   <div class="header_container">
@@ -73,11 +67,11 @@ const goToGardenDiary = async () => {
         >
         <!-- username을 포함한 동적 경로로 이동 -->
         <router-link
-          v-if="loginState.isLoggedIn" 
+          v-if="loginState.isLoggedIn"
           :to="`/garden-diary/${loginState.userNickname}`"
           class="header_navigator point"
-          @click.prevent="goToGardenDiary"
-        >원예일지</router-link>
+          >원예일지</router-link
+        >
       </div>
       <div class="footer_item">
         <div class="footer_middle">
