@@ -16,8 +16,6 @@
   </div>
 </template>
 
-<!--  -->
-
 <script setup>
 import MarketDetailBox from './MarketDetailBox.vue';
 import { useRoute, useRouter } from "vue-router";
@@ -77,7 +75,6 @@ const handleDeletePost = async (id) => {
 onMounted(async () => {
   try {
     market.value = await fetchMarketDetails(props.marketId, token);
-    console.log('모달창 뜸');
   } catch (error) {
     console.error("오류:", error);
   }

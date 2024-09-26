@@ -9,7 +9,6 @@
     <p>등록하신 분양글이 없습니다.</p>
   </div>
   <div v-if="isMarketDetailOpen">
-    ㅗㅎ촣초홓ㅊ호촣ㅊㅎㅊ
     <div>
       <MarketInDiaryModal v-model:isMarketDetailOpen="isMarketDetailOpen" :marketId="itemMarketId" @update:modelValue="isMarketDetailOpen = $event"/>
     </div>
@@ -19,13 +18,13 @@
 
 <script setup>
 import { useUserstore } from '@/stores/users';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import MarketInDiaryModal from './MarketInDiaryModal.vue';
 import { useRoute, useRouter } from "vue-router";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const userStore = useUserstore();
-const markets = ref([]); // 게시글 조회해서 담을 리스트
+const markets = reactive([]); // 게시글 조회해서 담을 리스트
 const imageUrl = ref('');
 const itemMarketId = ref('');
 const isMarketDetailOpen = ref(false);
@@ -46,24 +45,8 @@ const fetchMarkets = async () => {
   try {
     const token = localStorage.getItem('accessToken');
 
-    // 유저닉네임으로 사용자 정보를 가져옴
-    const userResponse = await fetch(`${API_BASE_URL}/user/info-by-nickname?nickname=${userNickname.value}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      }
-    });
-
-    if (!userResponse.ok) {
-      const errorData = await userResponse.json();
-      throw new Error(`유저 정보 가져오기 오류 : ${errorData.message || '알수없는 오류'}`);
-    }
-
-    const userInfo = await userResponse.json();
-    const userEmail = userInfo.userEmail; // 사용자 정보에서 이메일 가져옴
-
     // 분양게시글 조회하는 api로 전체 게시글 조회함
-    const response = await fetch(`${API_BASE_URL}/market`, {
+    const response = await fetch(`${API_BASE_URL}/market/${userNickname.value}`, {
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + token,
@@ -74,17 +57,16 @@ const fetchMarkets = async () => {
       const errorData = await response.json();
       throw new Error(`서버 응답 오류 : ${errorData.message || '알수없는 오류'}`);
     }
-    const result = await response.json(); 
-
-    markets.value = result.filter(market => 
-                              market.userEmail === userEmail && // 전체 게시글 중 다이어리 주인의 이메일과 같은것만 필터링해서 markets에 넣어줌
-                              market.marketVisibleScope !== 'MARKET_DELETE'); // 게시글 상태가 삭제가 아닌것만 보여줄라구
+    const responseData = await response.json(); 
 
     // 게시글 이미지 경로를 하나하나 꺼내옴
-    markets.value.forEach(market => {
+    responseData.forEach(market => {
       const imagePath = market.marketImage;
       market.imageUrl = `${API_BASE_URL}/ftp/image?path=${encodeURIComponent(imagePath)}`;
     });
+
+    // markets 배열에 반응형으로 데이터를 추가
+    responseData.forEach(market => markets.push(market)); // push로 데이터를 추가
   } catch (error) {
     console.error('오류:', error);
   }

@@ -24,7 +24,6 @@ const props = defineProps({
 const emit = defineEmits(['addComment']);
 const newReply = ref('');
 
-
 const submitComment = async () => {
   if (newReply.value.trim()) {
     try {
