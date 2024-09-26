@@ -207,7 +207,7 @@ watch(
   flex: 1;
   padding: 16px;
   overflow-y: auto;
-  background-color: #ffffff; /* 메시지 영역의 배경색 하얀색 */
+ background-image: url(https://img.freepik.com/free-photo/3d-rendering-cartoon-of-cacti-with-friendly-face_23-2151298170.jpg);
   display: flex;
   flex-direction: column;
 }
