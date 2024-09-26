@@ -125,7 +125,6 @@ export async function getUserInfo(userId, token) {
                   }, 
             })
             const userData = await response.json();
-            console.log(userData);
             return userData;
         } catch (error) {
             console.error("오류:", error);

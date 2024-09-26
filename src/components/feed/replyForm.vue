@@ -28,7 +28,6 @@ const newReply = ref('');
 const submitComment = async () => {
   if (newReply.value.trim()) {
     try {
-      console.log('폼제출실행');
       await axios.post(`${API_BASE_URL}/feeds/${props.feedId}/addreply`, {
         feedId: props.feedId,
         replyContent: newReply.value,

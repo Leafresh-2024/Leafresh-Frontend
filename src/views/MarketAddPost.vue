@@ -67,9 +67,6 @@ const findScopeEnum = (visibleScopeLabel) => {
 };
 
 const submitForm = async () => {
-  console.log('폼 제출 핸들러 응답');
-  console.log('유효성 : ', isFormValid.value);
-
   if (isFormValid.value) {
     try {
       let uploadedImagePath = '';  // 업로드된 이미지 경로를 저장할 변수
@@ -95,8 +92,6 @@ const submitForm = async () => {
         marketImage: uploadedImagePath,  // 이미지 경로 추가
         marketVisibleScope: findScopeEnum(post.value.marketVisibleScope)
       };
-      console.log('폼데이터',postData);
-      console.log('공개범위 : ', post.value.marketVisibleScope);
 
       const response = await axios.post(`${API_BASE_URL}/market/addpost`, postData, {
         headers: {
@@ -105,7 +100,6 @@ const submitForm = async () => {
         }
       });
 
-      console.log('성공:', response.data);
       alert('게시글이 등록되었습니다.'); // 게시글이 등록되면 alert를 띄워줌
       router.push('/market'); // 게시글이 등록되고 나면 /market로 리다이렉트 시켜줌
     } catch (error) {

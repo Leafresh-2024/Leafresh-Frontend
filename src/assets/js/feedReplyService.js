@@ -51,7 +51,6 @@ export async function fetchReplyLists(feedId, token, comments) {
 // 작성자 고유id번호로 작성자 정보를 가져오는 함수
 export async function getUserInfo(userId, token) {
   try {
-    console.log('js-api호출됨');
     const response = await fetch(`${API_BASE_URL}/user/userinfo-id?userId=${userId}`, {
       method: "GET",
       headers: {

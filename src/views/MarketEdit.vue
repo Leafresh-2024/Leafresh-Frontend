@@ -74,9 +74,6 @@ const fetchPostData = async () => {
     Object.assign(post, response.data.post);
     post.existingImagePath = response.data.post.marketImage; // 기존에 있던 이미지 경로
     post.marketVisibleScope = scopes[response.data.post.marketVisibleScope];
-
-    console.log('데이터 잘 가져오는지: ', response.data.post);
-
   } catch (error) {
     console.error('데이터 가져오기 오류:', error);
     post.value = { marketCategory: '', marketTitle: '', marketContent: '', marketImage: null, marketVisibleScope: null, existingImagePath: '' };
@@ -99,10 +96,7 @@ const findScopeEnum = (visibleScopeLabel) => {
   return Object.keys(scopes).find(key => scopes[key] === visibleScopeLabel);
 };
 
-const submitForm = async () => {
-  console.log('폼 제출 핸들러 응답');
-  console.log('유효성 : ', isFormValid.value);
-  
+const submitForm = async () => {  
   if (isFormValid.value) {
     try {
         let uploadedImagePath = post.existingImagePath; // 기존 이미지 경로
@@ -128,16 +122,12 @@ const submitForm = async () => {
           marketImage: uploadedImagePath,  // 이미지 경로 추가
           marketVisibleScope: findScopeEnum(post.marketVisibleScope)
         };
-        console.log('폼데이터',postData);
-        console.log('공개범위 : ', post.marketVisibleScope);
-  
+
       const response = await axios.put(`${API_BASE_URL}/market/modify/${postId}`, postData, {
         headers: {
           'Authorization': 'Bearer ' + token,
         }
       });
-  
-      console.log('성공:', response.data);
       alert('게시글이 수정되었습니다.'); // 게시글이 수정되면 alert를 띄워줌
       router.push('/market'); // 게시글이 수정되고 나면 /market로 리다이렉트 시켜줌
     } catch (error) {
