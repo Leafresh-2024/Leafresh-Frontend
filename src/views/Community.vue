@@ -17,9 +17,11 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import CommunityDetail from '@/components/common/communityDetail.vue'; // FeedDetail 컴포넌트 가져오기
 import { fetchReplyLists, getUserInfo } from '@/assets/js/feedReplyService';
+import { useUserstore } from '@/stores/users';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem("accessToken");
+const userStore = useUserstore();
 
 const feeds = ref([]);
 
@@ -65,6 +67,7 @@ const fetchFeeds = async () => {
         }
       }));
 
+
       // Fetch feed owner's profile image
       try {
         const userImgResponse = await axios.get(`${API_BASE_URL}/user/info-by-nickname`, {
@@ -103,7 +106,16 @@ const fetchFeeds = async () => {
 const handleAddReply = (feedId, newReply) => {
   const feed = feeds.value.find(feed => feed.feedId === feedId);
   if (feed) {
-    feed.comments.push({ replyContent: newReply, displayDate: "방금 전" });
+    const userNickname = userStore.userNickname;
+    const userProfileImg = userStore.imageUrl || "/default-profile-image.jpg";
+
+    feed.comments.push({ 
+      replyContent: newReply, 
+      displayDate: "방금 전",
+      userNickname: userNickname,
+      profileImg: userProfileImg
+    });
+    feeds.value = [...feeds.value];
   }
 };
 
