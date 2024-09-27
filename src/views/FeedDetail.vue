@@ -448,6 +448,7 @@ onMounted(() => {
 
 .photo {
   height: 30px;
+  width: 30px;
   border-radius: 50%; /* 원형 이미지로 표시 */
   margin-right: 10px;
 }
