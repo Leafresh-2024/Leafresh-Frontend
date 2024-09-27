@@ -180,7 +180,7 @@ watch(
 }
 
 .chat-header {
-  background-color: #5e9c06; /* 카카오톡 스타일의 짙은 녹색 */
+  background: linear-gradient(135deg, #a8d5ba, #6f9c8a);
   padding: 16px;
   display: flex;
   justify-content: space-between;
