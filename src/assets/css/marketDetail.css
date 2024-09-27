@@ -273,7 +273,7 @@
     width: 70px;
     /* 크기 */
     height: 70px;
-    background-color: #28a745;
+    background: linear-gradient(135deg, #a8d5ba, #6f9c8a);
     /* 녹색 배경 */
     color: white;
     border-radius: 50%;
