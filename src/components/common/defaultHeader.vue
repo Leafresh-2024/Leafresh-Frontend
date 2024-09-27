@@ -119,7 +119,6 @@ a {
   align-items: center; /* 수직 중앙 정렬 */
   background: linear-gradient(135deg, #a8d5ba, #6f9c8a); /* 부드러운 연한 초록색과 깊은 초록색 그라디언트 */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
-  border-radius: 15px; /* 모서리 둥글게 처리 */
   padding: 20px; /* 내부 여백 */
   transition: transform 0.3s ease, box-shadow 0.3s ease; /* 부드러운 변환 효과 */
 }
