@@ -124,11 +124,6 @@ a {
   transition: transform 0.3s ease, box-shadow 0.3s ease; /* 부드러운 변환 효과 */
 }
 
-.header_container:hover {
-  transform: scale(1.02); /* 호버 시 확대 효과 */
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 효과 강화 */
-}
-
 .header_text_container {
   width: 100%;
   height: 100%;
