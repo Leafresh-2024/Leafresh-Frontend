@@ -48,7 +48,7 @@
           <ul>
             <replyForm :feedId="Number(feedId)" @addComment="handleAddReply" />
             <li v-for="(comment, index) in comments" :key="index" class="comments_item">
-              <img :src="comment.profileImg" alt="User Profile Image" class="reply_user_image" />
+              <img :src="comment.profileImg" alt="User Profile Image" class="reply_user_image" @click="toGardenDiary(comment)"/>
               <p class="comments_nickName">{{ comment.userNickname }}</p>
               <p class="comments_content">{{ comment.replyContent }}</p>
               <p class="comments_date">{{ comment.displayDate }}</p>
@@ -371,6 +371,14 @@ const allCommentLists = async () => {
     });
   }
 };
+
+const toGardenDiary = (comment) => { 
+  if (comment.userNickname) {
+    router.push(`/garden-diary/${comment.userNickname}`);
+  } else {
+    console.log("유저 닉네임이 존재하지 않습니다.");
+  }
+}
 
 // -------------------- 라이프사이클 훅 --------------------
 onMounted(() => {
