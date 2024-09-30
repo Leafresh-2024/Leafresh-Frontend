@@ -82,19 +82,21 @@ import EditProfileModal from './EditProfileModal.vue';
 import PlantAddModal from '@/views/PlantAddModal.vue';
 import { useUserstore } from '@/stores/users'; // 사용자 스토어 불러오기
 import { useFollowStore } from '@/stores/followStore';
+import { useGardenStore } from '@/stores/gardenStore'; // 가든 스토어 추가
 
 const userStore = useUserstore();
+const gardenStore = useGardenStore(); // 가든 스토어 사용
 const route = useRoute();
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const profileImage = ref('');
-const userNickname = ref(route.params.userNickname);
+const userNickname = ref(route.params.userNickname); // 유저 닉네임
 const profileTitle = ref('');
 const profileDescription = ref('');
-const followerPlants = ref(0);
 const salePlants = ref(0);
 const followers = ref(''); // 팔로워 수를 상태로 저장
 const followStore = useFollowStore(); // 팔로우 스토어 사용
+
 
 // 모달 상태
 const isEditModalOpen = ref(false);
@@ -130,24 +132,24 @@ const closePlantAddModal = () => {
   isPlantAddModalOpen.value = false;
 };
 
+// followerPlants를 가든 스토어의 plantCount로 설정
+const followerPlants = computed(() => gardenStore.plantCount);
+
 // 팔로잉 상태 확인
 const checkFollowingStatus = async () => {
   try {
-      const response = await axios.get(`${API_BASE_URL}/follow/status`, {
-          params: { userNickname: userNickname.value },
-          headers: { Authorization: `Bearer ${localToken}` }
-      });
+    const response = await axios.get(`${API_BASE_URL}/follow/status`, {
+      params: { userNickname: userNickname.value },
+      headers: { Authorization: `Bearer ${localToken}` }
+    });
 
-      // API 응답 확인
-      console.log("API 응답 데이터:", response.data);
-
-      if (response && response.data && typeof response.data.following === 'boolean') {
-          isFollowing.value = response.data.following; // 팔로잉 상태 업데이트
-      } else {
-          console.error('API 응답 형식이 올바르지 않습니다:', response.data);
-      }
+    if (response && response.data && typeof response.data.following === 'boolean') {
+      isFollowing.value = response.data.following;
+    } else {
+      console.error('API 응답 형식이 올바르지 않습니다:', response.data);
+    }
   } catch (error) {
-      console.error('팔로잉 상태를 확인하는 중 오류 발생:', error);
+    console.error('팔로잉 상태를 확인하는 중 오류 발생:', error);
   }
 };
 
@@ -156,117 +158,109 @@ const toggleFollow = async () => {
   await followStore.toggleFollow(userNickname.value, isFollowing.value, localToken);
   isFollowing.value = !isFollowing.value;
 
-  // 팔로우/언팔로우 후 팔로워 수 업데이트
   if (isFollowing.value) {
-      followers.value++; // 팔로우 시 팔로워 수 증가
+    followers.value++;
   } else {
-      followers.value--; // 언팔로우 시 팔로워 수 감소
+    followers.value--;
   }
 };
 
 // 사용자 프로필 정보 가져오기
 const fetchUserProfileDetails = async () => {
   try {
-      const nickname = route.params.userNickname;
+    const nickname = userNickname.value; // 유저 닉네임 전달
 
-      // 사용자 정보 API 호출
-      const userResponse = await axios.get(`${API_BASE_URL}/user/info-by-nickname`, {
-          params: { nickname: nickname },
-          headers: { Authorization: `Bearer ${localToken}` }
-      });
+    const userResponse = await axios.get(`${API_BASE_URL}/user/info-by-nickname`, {
+      params: { nickname },
+      headers: { Authorization: `Bearer ${localToken}` }
+    });
 
-      if (typeof userResponse.data !== 'object') {
-          throw new Error('Invalid JSON response');
-      }
+    if (typeof userResponse.data !== 'object') {
+      throw new Error('Invalid JSON response');
+    }
 
-      // 팔로워 수를 상태에 반영
-      const followersResponse = await axios.get(`${API_BASE_URL}/follow/followers/count`, {
-          params: { nickname: nickname },
-          headers: { Authorization: `Bearer ${localToken}` }
-      });
+    const followersResponse = await axios.get(`${API_BASE_URL}/follow/followers/count`, {
+      params: { nickname },
+      headers: { Authorization: `Bearer ${localToken}` }
+    });
 
-      if (typeof followersResponse.data === 'number') {
-          followers.value = followersResponse.data; // API로 받은 팔로워 수로 업데이트
-      } else {
-          console.error('팔로워 수 API 응답 형식이 올바르지 않습니다:', followersResponse.data);
-      }
+    if (typeof followersResponse.data === 'number') {
+      followers.value = followersResponse.data;
+    }
 
-      // 이미지 경로를 FTP 서버에서 가져옴
-      const imageResponse = await axios.get(`${API_BASE_URL}/ftp/image`, {
-          params: { path: userResponse.data.imageUrl },
-          headers: { Authorization: `Bearer ${localToken}` },
-          responseType: 'blob'
-      });
+    const imageResponse = await axios.get(`${API_BASE_URL}/ftp/image`, {
+      params: { path: userResponse.data.imageUrl },
+      headers: { Authorization: `Bearer ${localToken}` },
+      responseType: 'blob'
+    });
 
-      profileImage.value = URL.createObjectURL(imageResponse.data);
+    profileImage.value = URL.createObjectURL(imageResponse.data);
 
-      const profileResponse = await axios.get(`${API_BASE_URL}/profile/info-by-nickname`, {
-          params: { nickname: nickname },
-          headers: { Authorization: `Bearer ${localToken}` }
-      });
+    const profileResponse = await axios.get(`${API_BASE_URL}/profile/info-by-nickname`, {
+      params: { nickname },
+      headers: { Authorization: `Bearer ${localToken}` }
+    });
 
-      if (typeof profileResponse.data !== 'object') {
-          throw new Error('Invalid JSON response');
-      }
+    if (typeof profileResponse.data !== 'object') {
+      throw new Error('Invalid JSON response');
+    }
 
-      profileTitle.value = profileResponse.data.profileTitle;
-      profileDescription.value = profileResponse.data.profileDescription;
-      profileExists.value = true; // 프로필 존재 여부 설정
+    profileTitle.value = profileResponse.data.profileTitle;
+    profileDescription.value = profileResponse.data.profileDescription;
+    profileExists.value = true;
 
-      // 팔로잉 상태 확인
-      if (!isCurrentUserProfile.value) {
-          checkFollowingStatus();
-      }
+    if (!isCurrentUserProfile.value) {
+      checkFollowingStatus();
+    }
 
   } catch (error) {
-      console.error('Error fetching user profile details:', error);
-      profileExists.value = false; // 오류 시 프로필 존재 여부 설정
+    console.error('Error fetching user profile details:', error);
+    profileExists.value = false;
   }
 };
 
 // 판매식물 개수 가져오기
 const fetchSalePlants = async (nickname) => {
   try {
-      const salePlantsResponse = await axios.get(`${API_BASE_URL}/market/sales-count`, {
-          params: { nickname: nickname },  // 닉네임을 리퀘스트 파라미터로 전달
-          headers: { Authorization: `Bearer ${localToken}` }  // 토큰을 포함
-      });
+    const salePlantsResponse = await axios.get(`${API_BASE_URL}/market/sales-count`, {
+      params: { nickname },
+      headers: { Authorization: `Bearer ${localToken}` }
+    });
 
-      console.log("판매식물 API 응답:", salePlantsResponse.data);
-
-      if (salePlantsResponse && typeof salePlantsResponse.data === 'number') {
-          salePlants.value = salePlantsResponse.data;  // 판매글 수 업데이트
-      } else {
-          console.error('판매식물 수 API 응답 형식이 올바르지 않습니다:', salePlantsResponse.data);
-      }
+    if (salePlantsResponse && typeof salePlantsResponse.data === 'number') {
+      salePlants.value = salePlantsResponse.data;
+    }
   } catch (error) {
-      console.error('판매식물 수를 가져오는 중 오류 발생:', error);
+    console.error('판매식물 수를 가져오는 중 오류 발생:', error);
   }
 };
-
 // 닉네임 변경을 감시하고 프로필을 다시 가져오는 watch 설정
 watch(() => route.params.userNickname, (newNickname) => {
-  userNickname.value = newNickname;  // 닉네임 업데이트
-  fetchSalePlants(newNickname);  // 닉네임 변경 시 판매글 수 가져오기
+  userNickname.value = newNickname;
+  fetchSalePlants(newNickname);
+  gardenStore.fetchPlants(newNickname); // 닉네임 전달
 });
 
 watchEffect(() => {
-    if (localToken) {
-        fetchUserProfileDetails();
-        fetchSalePlants(userNickname.value);
-    }
+  if (localToken) {
+    fetchUserProfileDetails();
+    fetchSalePlants(userNickname.value);
+    gardenStore.fetchPlants(userNickname.value); // 닉네임 전달
+  }
 });
 
 // 컴포넌트 마운트 시 프로필 정보 가져오기
 onMounted(() => {
   if (localToken) {
-      fetchUserProfileDetails();
-      fetchSalePlants(userNickname.value);  // 마운트 시 판매식물 수 가져오기
+    fetchUserProfileDetails();
+    fetchSalePlants(userNickname.value);
+    gardenStore.fetchPlants(userNickname.value); // 닉네임 전달
   } else {
-      console.warn('사용자 토큰이 존재하지 않습니다.');
+    console.warn('사용자 토큰이 존재하지 않습니다.');
   }
 });
 </script>
+
 
 <style scoped>
 /* CSS 동일 */

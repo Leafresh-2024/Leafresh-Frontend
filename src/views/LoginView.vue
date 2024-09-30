@@ -56,7 +56,6 @@ const login = async (credentials) => {
     if (response.data.accessToken) {
       // 액세스 토큰과 리프레시 토큰을 로컬 스토리지에 저장
       localStorage.setItem("accessToken", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
       
       userStore.setLoginState(true);
       await userStore.fetchUserProfile();
