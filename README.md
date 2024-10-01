@@ -36,7 +36,7 @@ $ git clone https://github.com/Leafresh-2024/Leafresh-Frontend.git
 
 ```bash
 
-cd Leafresh-Frontend
+$ cd Leafresh-Frontend
 
 ```
 
